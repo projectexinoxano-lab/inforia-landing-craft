@@ -18,11 +18,16 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // INFORIA Custom Variants
+        cta: "bg-inforia-burgundy text-white font-semibold shadow-button hover:bg-inforia-burgundy/90 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300",
+        demo: "bg-inforia-green text-white font-medium hover:bg-inforia-green/90 border-2 border-transparent hover:border-inforia-green/20",
+        premium: "bg-gradient-to-r from-inforia-gold to-inforia-gold/80 text-inforia-graphite font-semibold hover:from-inforia-gold/90 hover:to-inforia-gold/70"
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
+        xl: "h-14 rounded-lg px-10 text-base",
         icon: "h-10 w-10",
       },
     },
