@@ -32,8 +32,8 @@ const Header = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="font-heading font-bold text-2xl text-inforia-green">
-            iNFORIA
+          <div className="font-heading font-bold text-3xl text-inforia-green">
+            iNFORiA
           </div>
 
           {/* Desktop Navigation */}

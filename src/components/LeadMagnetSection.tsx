@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import ebookImage from "@/assets/ebook-mockup.jpg";
+import ebookImage from "@/assets/ebook-survival-guide.jpg";
 import { Download, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -10,7 +10,7 @@ const LeadMagnetSection = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    requestDemo: false
+    website: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -29,7 +29,7 @@ const LeadMagnetSection = () => {
         body: JSON.stringify({
           name: formData.name || "",
           email: formData.email || "",
-          requestDemo: formData.requestDemo
+          website: formData.website || ""
         }),
       });
 
@@ -66,11 +66,6 @@ const LeadMagnetSection = () => {
               <p className="font-sans text-muted-foreground mb-6">
                 Revisa tu email en los próximos minutos. Si no lo encuentras, mira en la carpeta de spam.
               </p>
-              {formData.requestDemo && (
-                <p className="font-sans text-inforia-green font-medium">
-                  También nos pondremos en contacto contigo para programar tu demo personalizada.
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -137,16 +132,14 @@ const LeadMagnetSection = () => {
                   />
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <Checkbox 
-                    id="demo-checkbox"
-                    checked={formData.requestDemo}
-                    onCheckedChange={(checked) => setFormData({...formData, requestDemo: checked as boolean})}
-                    className="border-white/40 data-[state=checked]:bg-inforia-gold data-[state=checked]:border-inforia-gold"
+                <div>
+                  <Input
+                    type="url"
+                    placeholder="Tu página web (opcional)"
+                    value={formData.website}
+                    onChange={(e) => setFormData({...formData, website: e.target.value})}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/70 focus:bg-white/20"
                   />
-                  <label htmlFor="demo-checkbox" className="font-sans text-sm opacity-90 cursor-pointer">
-                    También quiero solicitar una demo personalizada
-                  </label>
                 </div>
 
                 <Button 

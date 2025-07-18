@@ -21,10 +21,10 @@ const plans = [
     name: "Plan Clínica",
     price: "149€",
     period: "/mes",
-    reports: "150 informes",
+    reports: "170 informes",
     popular: false,
     features: [
-      "150 informes mensuales",
+      "170 informes mensuales",
       "Plantillas DSM-5 y CIE-10",
       "Cumplimiento LOPD completo",
       "Soporte prioritario",
@@ -67,17 +67,9 @@ const PricingSection = () => {
             <div 
               key={index}
               className={`bg-white rounded-2xl p-8 shadow-card hover:shadow-elegant transition-all duration-300 relative ${
-                plan.popular ? 'ring-2 ring-inforia-burgundy ring-opacity-20 scale-105' : ''
+                index === 0 ? 'ring-2 ring-inforia-green ring-opacity-20' : 'ring-2 ring-inforia-burgundy ring-opacity-20'
               }`}
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-inforia-burgundy text-white px-6 py-2 rounded-full flex items-center space-x-2">
-                    <Star className="w-4 h-4" />
-                    <span className="font-sans font-semibold text-sm">Más Popular</span>
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-6">
                 {/* Header */}
@@ -112,7 +104,7 @@ const PricingSection = () => {
 
                 {/* CTA */}
                 <Button 
-                  variant={plan.popular ? "cta" : "demo"}
+                  variant={index === 0 ? "demo" : "cta"}
                   size="lg"
                   className="w-full font-sans"
                   onClick={requestDemo}

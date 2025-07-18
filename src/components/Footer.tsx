@@ -31,7 +31,7 @@ const Footer = () => {
             {/* Logo y descripción */}
             <div className="space-y-4">
               <div className="font-heading font-bold text-2xl text-inforia-gold">
-                iNFORIA
+                iNFORiA
               </div>
               <p className="font-sans text-white/80 leading-relaxed">
                 El asistente clínico con IA diseñado para psicólogos que quieren dedicar su tiempo a los pacientes, no a la burocracia.
@@ -46,13 +46,9 @@ const Footer = () => {
               <div className="space-y-2 font-sans text-white/80">
                 <p>
                   <strong>Email:</strong>{' '}
-                  <a href="mailto:info@inforia.cat" className="hover:text-white transition-colors">
-                    info@inforia.cat
+                  <a href="mailto:inforia@inforia.pro" className="hover:text-white transition-colors">
+                    inforia@inforia.pro
                   </a>
-                </p>
-                <p>
-                  <strong>Atención al cliente:</strong><br />
-                  Lunes a Viernes: 9:00 - 18:00h
                 </p>
               </div>
             </div>
