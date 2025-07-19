@@ -56,7 +56,13 @@ const Header = () => {
             >
               Precios
             </button>
-            <Button variant="demo" size="default" onClick={requestDemo}>
+            <button 
+              onClick={() => scrollToSection('faqs')}
+              className="text-foreground hover:text-inforia-green transition-colors font-sans font-medium"
+            >
+              FAQs
+            </button>
+            <Button variant="cta" size="default" onClick={requestDemo}>
               Solicitar Demo
             </Button>
           </nav>
@@ -92,7 +98,13 @@ const Header = () => {
               >
                 Precios
               </button>
-              <Button variant="demo" size="default" onClick={requestDemo}>
+              <button 
+                onClick={() => scrollToSection('faqs')}
+                className="text-left text-foreground hover:text-inforia-green transition-colors font-sans font-medium"
+              >
+                FAQs
+              </button>
+              <Button variant="cta" size="default" onClick={requestDemo}>
                 Solicitar Demo
               </Button>
             </div>

@@ -120,7 +120,7 @@ const PricingSection = () => {
           <p className="font-sans text-muted-foreground mb-4">
             ¿Necesitas un plan personalizado para tu clínica o centro?
           </p>
-          <Button variant="outline" size="lg" onClick={requestDemo}>
+          <Button variant="cta" size="lg" onClick={requestDemo}>
             Contactar para Plan Empresarial
           </Button>
         </div>
