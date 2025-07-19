@@ -10,9 +10,9 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="pt-32 pb-24 px-6">
+    <section className="pt-40 pb-32 px-6 min-h-screen flex items-center">
       <div className="container mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-16 items-center w-full">
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-6">
