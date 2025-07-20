@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import DemoModal from "./DemoModal";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -14,17 +16,8 @@ const Header = () => {
   };
 
   const requestDemo = () => {
-    const element = document.getElementById('lead-magnet');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      // Focus the demo checkbox
-      setTimeout(() => {
-        const checkbox = document.getElementById('demo-checkbox');
-        if (checkbox) {
-          (checkbox as HTMLInputElement).checked = true;
-        }
-      }, 500);
-    }
+    setIsDemoModalOpen(true);
+    setIsMenuOpen(false);
   };
 
   return (
@@ -111,6 +104,11 @@ const Header = () => {
           </nav>
         )}
       </div>
+
+      <DemoModal 
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+      />
     </header>
   );
 };

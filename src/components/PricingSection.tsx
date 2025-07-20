@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
+import DemoModal from "./DemoModal";
 
 const plans = [
   {
@@ -37,17 +39,10 @@ const plans = [
 ];
 
 const PricingSection = () => {
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
   const requestDemo = () => {
-    const element = document.getElementById('lead-magnet');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        const checkbox = document.getElementById('demo-checkbox');
-        if (checkbox) {
-          (checkbox as HTMLInputElement).checked = true;
-        }
-      }, 500);
-    }
+    setIsDemoModalOpen(true);
   };
 
   return (
@@ -125,6 +120,11 @@ const PricingSection = () => {
           </Button>
         </div>
       </div>
+
+      <DemoModal 
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+      />
     </section>
   );
 };
