@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
-import DemoModal from "./DemoModal";
+import ContactModal from "./ContactModal";
 
 const plans = [
   {
@@ -39,10 +39,10 @@ const plans = [
 ];
 
 const PricingSection = () => {
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
-  const requestDemo = () => {
-    setIsDemoModalOpen(true);
+  const requestContact = () => {
+    setIsContactModalOpen(true);
   };
 
   return (
@@ -102,9 +102,8 @@ const PricingSection = () => {
                   variant={index === 0 ? "demo" : "cta"}
                   size="lg"
                   className="w-full font-sans"
-                  onClick={requestDemo}
                 >
-                  Solicitar Demo
+                  Contratar
                 </Button>
               </div>
             </div>
@@ -115,15 +114,15 @@ const PricingSection = () => {
           <p className="font-sans text-muted-foreground mb-4">
             ¿Necesitas un plan personalizado para tu clínica o centro?
           </p>
-          <Button variant="cta" size="lg" onClick={requestDemo}>
+          <Button variant="cta" size="lg" onClick={requestContact}>
             Contactar para Plan Empresarial
           </Button>
         </div>
       </div>
 
-      <DemoModal 
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
       />
     </section>
   );
