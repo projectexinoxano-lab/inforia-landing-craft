@@ -27,6 +27,7 @@ const LeadMagnetSection = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          type: 'guia',
           name: formData.name || "",
           email: formData.email || "",
           website: formData.website || ""
@@ -85,9 +86,6 @@ const LeadMagnetSection = () => {
                 alt="Guía de Supervivencia del Psicólogo Emprendedor"
                 className="w-full max-w-md mx-auto drop-shadow-2xl"
               />
-              <div className="absolute -top-4 -right-4 bg-inforia-gold text-inforia-graphite px-4 py-2 rounded-full font-sans font-bold text-sm">
-                GRATIS
-              </div>
             </div>
           </div>
 

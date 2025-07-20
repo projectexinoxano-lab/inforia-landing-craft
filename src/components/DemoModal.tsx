@@ -15,13 +15,14 @@ interface DemoModalProps {
 }
 
 const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
-  const [step, setStep] = useState<'form' | 'calendar'>('form');
+  const [step, setStep] = useState<'form' | 'calendar' | 'time'>('form');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     challenge: ''
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -38,10 +39,16 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
     setStep('calendar');
   };
 
-  const handleDateSelect = async (date: Date | undefined) => {
+  const handleDateSelect = (date: Date | undefined) => {
     if (!date) return;
-    
     setSelectedDate(date);
+    setStep('time');
+  };
+
+  const handleTimeSelect = async (time: string) => {
+    if (!selectedDate) return;
+    
+    setSelectedTime(time);
     setIsSubmitting(true);
 
     try {
@@ -51,12 +58,12 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          type: 'demo_request',
+          type: 'demo',
           name: formData.name,
           email: formData.email,
           challenge: formData.challenge,
-          demo_date: format(date, 'yyyy-MM-dd', { locale: es }),
-          demo_time: format(date, 'HH:mm', { locale: es })
+          demo_date: format(selectedDate, 'yyyy-MM-dd', { locale: es }),
+          demo_time: time
         }),
       });
 
@@ -85,7 +92,13 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
     setStep('form');
     setFormData({ name: '', email: '', challenge: '' });
     setSelectedDate(undefined);
+    setSelectedTime(undefined);
   };
+
+  const availableTimes = [
+    '09:00', '10:00', '11:00', '12:00', 
+    '14:00', '15:00', '16:00', '17:00', '18:00'
+  ];
 
   const handleClose = () => {
     onClose();
@@ -149,7 +162,7 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
               </Button>
             </form>
           </div>
-        ) : (
+        ) : step === 'calendar' ? (
           <div className="space-y-6">
             <p className="font-sans text-center font-medium">
               Elige tu momento. Allí estaremos.
@@ -166,6 +179,34 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
               />
             </div>
 
+            <Button 
+              variant="outline" 
+              onClick={() => setStep('form')}
+              className="w-full"
+            >
+              Volver al formulario
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <p className="font-sans text-center font-medium">
+              Selecciona la hora para tu demo del {selectedDate ? format(selectedDate, 'dd/MM/yyyy', { locale: es }) : ''}
+            </p>
+
+            <div className="grid grid-cols-3 gap-3">
+              {availableTimes.map((time) => (
+                <Button
+                  key={time}
+                  variant="outline"
+                  onClick={() => handleTimeSelect(time)}
+                  disabled={isSubmitting}
+                  className="text-sm"
+                >
+                  {time}
+                </Button>
+              ))}
+            </div>
+
             {isSubmitting && (
               <p className="text-center text-sm text-muted-foreground">
                 Agendando tu demo...
@@ -174,11 +215,11 @@ const DemoModal = ({ isOpen, onClose }: DemoModalProps) => {
 
             <Button 
               variant="outline" 
-              onClick={() => setStep('form')}
+              onClick={() => setStep('calendar')}
               className="w-full"
               disabled={isSubmitting}
             >
-              Volver al formulario
+              Cambiar fecha
             </Button>
           </div>
         )}
