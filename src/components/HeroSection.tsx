@@ -1,12 +1,13 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import DemoModal from "./DemoModal";
 import heroImage from "@/assets/hero-psychologist.jpg";
 
 const HeroSection = () => {
-  const scrollToLeadMagnet = () => {
-    const element = document.getElementById('lead-magnet');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
+  const requestDemo = () => {
+    setIsDemoModalOpen(true);
   };
 
   return (
@@ -30,7 +31,7 @@ const HeroSection = () => {
             <Button 
               variant="cta" 
               size="xl" 
-              onClick={scrollToLeadMagnet}
+              onClick={requestDemo}
               className="font-sans"
             >
               Empieza a Ahorrar Tiempo Ahora
@@ -50,6 +51,11 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
+      <DemoModal 
+        isOpen={isDemoModalOpen} 
+        onClose={() => setIsDemoModalOpen(false)} 
+      />
     </section>
   );
 };
