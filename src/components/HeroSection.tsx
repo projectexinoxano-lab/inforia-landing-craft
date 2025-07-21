@@ -1,13 +1,9 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import DemoModal from "./DemoModal";
 import heroImage from "@/assets/hero-psychologist.jpg";
 
 const HeroSection = () => {
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
-
   const requestDemo = () => {
-    setIsDemoModalOpen(true);
+    window.open('https://calendly.com/inforia-inforia/demo_inforia', '_blank');
   };
 
   return (
@@ -52,10 +48,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-      <DemoModal 
-        isOpen={isDemoModalOpen} 
-        onClose={() => setIsDemoModalOpen(false)} 
-      />
     </section>
   );
 };

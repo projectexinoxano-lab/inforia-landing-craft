@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import DemoModal from "./DemoModal";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -16,7 +14,7 @@ const Header = () => {
   };
 
   const requestDemo = () => {
-    setIsDemoModalOpen(true);
+    window.open('https://calendly.com/inforia-inforia/demo_inforia', '_blank');
     setIsMenuOpen(false);
   };
 
@@ -105,10 +103,6 @@ const Header = () => {
         )}
       </div>
 
-      <DemoModal 
-        isOpen={isDemoModalOpen}
-        onClose={() => setIsDemoModalOpen(false)}
-      />
     </header>
   );
 };
