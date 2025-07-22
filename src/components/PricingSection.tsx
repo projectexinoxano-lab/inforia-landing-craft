@@ -52,15 +52,20 @@ const PricingSection = () => {
   };
 
   const handleCheckout = async (priceId: string, planName: string) => {
+    console.log('Iniciando checkout para:', planName, 'con priceId:', priceId);
     setLoadingPlan(priceId);
     try {
+      console.log('Llamando a create-checkout function...');
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId }
       });
 
+      console.log('Respuesta de create-checkout:', { data, error });
+
       if (error) throw error;
 
       if (data?.url) {
+        console.log('Abriendo URL:', data.url);
         window.open(data.url, '_blank');
       } else {
         throw new Error('No se recibió la URL de checkout');
