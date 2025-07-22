@@ -50,7 +50,6 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/`,
       billing_address_collection: "required",
-      customer_creation: "always",
       phone_number_collection: {
         enabled: true,
       },
@@ -69,9 +68,6 @@ serve(async (req) => {
         }
       ],
       locale: "es",
-      tax_id_collection: {
-        enabled: true,
-      },
     });
 
     console.log("Session created successfully:", session.id);
