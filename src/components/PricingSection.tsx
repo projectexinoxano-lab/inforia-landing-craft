@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
 import ContactModal from "./ContactModal";
+import { createClient } from '@supabase/supabase-js';
+import { useToast } from "@/hooks/use-toast";
+
+const supabase = createClient(
+  'https://pwhyrqjmzhkuguvfkrkc.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3aHlycWptemhrdWd1dmZrcmtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxNzIzMDAsImV4cCI6MjA2ODc0ODMwMH0.mhtia0GDpibMGP_Yg9c-mz6FKZGuVCoyINQOu32hc9c'
+);
 
 const plans = [
   {
@@ -10,6 +17,7 @@ const plans = [
     period: "/mes",
     reports: "100 informes",
     popular: true,
+    priceId: "price_1RnNaQRCKKhBtMJ31EF4YWaQ",
     features: [
       "100 informes mensuales",
       "Plantillas DSM-5 y CIE-10",
@@ -25,6 +33,7 @@ const plans = [
     period: "/mes",
     reports: "170 informes",
     popular: false,
+    priceId: "price_1RnNdBRCKKhBtMJ3QSmpTLXy",
     features: [
       "170 informes mensuales",
       "Plantillas DSM-5 y CIE-10",
@@ -40,9 +49,37 @@ const plans = [
 
 const PricingSection = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const requestContact = () => {
     setIsContactModalOpen(true);
+  };
+
+  const handleCheckout = async (priceId: string, planName: string) => {
+    setLoadingPlan(priceId);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No se recibió la URL de checkout');
+      }
+    } catch (error) {
+      console.error('Error en checkout:', error);
+      toast({
+        title: "Error",
+        description: "Hubo un problema al procesar tu solicitud. Por favor, intenta de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
   };
 
   return (
@@ -102,8 +139,10 @@ const PricingSection = () => {
                   variant={index === 0 ? "demo" : "cta"}
                   size="lg"
                   className="w-full font-sans"
+                  onClick={() => handleCheckout(plan.priceId, plan.name)}
+                  disabled={loadingPlan === plan.priceId}
                 >
-                  Contratar
+                  {loadingPlan === plan.priceId ? "Procesando..." : "Contratar"}
                 </Button>
               </div>
             </div>
