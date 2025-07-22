@@ -2,13 +2,8 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
 import ContactModal from "./ContactModal";
-import { createClient } from '@supabase/supabase-js';
 import { useToast } from "@/hooks/use-toast";
-
-const supabase = createClient(
-  'https://pwhyrqjmzhkuguvfkrkc.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3aHlycWptemhrdWd1dmZrcmtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxNzIzMDAsImV4cCI6MjA2ODc0ODMwMH0.mhtia0GDpibMGP_Yg9c-mz6FKZGuVCoyINQOu32hc9c'
-);
+import { supabase } from "@/integrations/supabase/client";
 
 const plans = [
   {
@@ -59,7 +54,7 @@ const PricingSection = () => {
   const handleCheckout = async (priceId: string, planName: string) => {
     setLoadingPlan(priceId);
     try {
-      const { data, error } = await supabase.functions.invoke('dynamic-action', {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId }
       });
 
