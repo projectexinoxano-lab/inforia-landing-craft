@@ -50,6 +50,7 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/`,
       billing_address_collection: "required",
+      customer_creation: "always",
       phone_number_collection: {
         enabled: true,
       },
@@ -67,7 +68,21 @@ serve(async (req) => {
           },
         }
       ],
+      subscription_data: {
+        description: "Suscripción INFORIA - Redacción inteligente de informes psicológicos con IA",
+        metadata: {
+          platform: "INFORIA",
+          service: "Informes psicológicos con IA",
+          tax_note: "IVA no incluido - Se aplicará según legislación vigente"
+        },
+      },
+      metadata: {
+        platform: "INFORIA",
+        product_type: "subscription",
+        tax_inclusive: "false"
+      },
       locale: "es",
+      allow_promotion_codes: true,
     });
 
     console.log("Session created successfully:", session.id);
