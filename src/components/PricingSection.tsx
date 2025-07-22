@@ -59,7 +59,7 @@ const PricingSection = () => {
   const handleCheckout = async (priceId: string, planName: string) => {
     setLoadingPlan(priceId);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error } = await supabase.functions.invoke('dynamic-action', {
         body: { priceId }
       });
 
