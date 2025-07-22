@@ -7,22 +7,38 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { priceId } = await req.json();
+    console.log("Function started");
+    
+    // Parse request body
+    const body = await req.json();
+    console.log("Request body:", body);
+    
+    const { priceId } = body;
     
     if (!priceId) {
       throw new Error("Price ID is required");
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    console.log("Price ID received:", priceId);
+
+    // Check for Stripe secret key
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY not configured");
+    }
+
+    console.log("Initializing Stripe...");
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16",
     });
 
-    // Create checkout session for guest users
+    console.log("Creating checkout session...");
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -32,8 +48,7 @@ serve(async (req) => {
       ],
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/pricing`,
-      // Collect customer information
+      cancel_url: `${req.headers.get("origin")}/`,
       billing_address_collection: "required",
       phone_number_collection: {
         enabled: true,
@@ -50,40 +65,30 @@ serve(async (req) => {
             minimum_length: 8,
             maximum_length: 12,
           },
-        },
-        {
-          key: "factura",
-          label: {
-            type: "custom", 
-            custom: "¿Necesita factura?"
-          },
-          type: "dropdown",
-          dropdown: {
-            options: [
-              {
-                label: "Sí, necesito factura",
-                value: "si"
-              },
-              {
-                label: "No necesito factura",
-                value: "no"
-              }
-            ]
-          },
         }
       ],
       locale: "es",
     });
 
+    console.log("Session created successfully:", session.id);
+    
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
+    
   } catch (error) {
-    console.error("Error creating checkout session:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    console.error("Error in create-checkout:", error);
+    
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }), 
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });
