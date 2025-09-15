@@ -45,6 +45,7 @@ const plans = [
 const PricingSection = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [loadingTest, setLoadingTest] = useState(false);
   const { toast } = useToast();
 
   const requestContact = () => {
@@ -79,6 +80,30 @@ const PricingSection = () => {
       });
     } finally {
       setLoadingPlan(null);
+    }
+  };
+
+  const handleTestCheckout = async () => {
+    setLoadingTest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan: 'test' }
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No se recibió la URL de checkout');
+      }
+    } catch (error) {
+      console.error('Error en checkout test:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo iniciar el checkout de prueba.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingTest(false);
     }
   };
 
@@ -149,13 +174,18 @@ const PricingSection = () => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <p className="font-sans text-muted-foreground mb-4">
+        <div className="text-center mt-12 space-y-4">
+          <p className="font-sans text-muted-foreground">
             ¿Necesitas un plan personalizado para tu clínica o centro?
           </p>
-          <Button variant="cta" size="lg" onClick={requestContact}>
-            Contactar para Plan Empresarial
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button variant="cta" size="lg" onClick={requestContact}>
+              Contactar para Plan Empresarial
+            </Button>
+            <Button variant="outline" size="lg" onClick={handleTestCheckout} disabled={loadingTest}>
+              {loadingTest ? 'Iniciando…' : 'Probar por 1€ (Test)'}
+            </Button>
+          </div>
         </div>
       </div>
 

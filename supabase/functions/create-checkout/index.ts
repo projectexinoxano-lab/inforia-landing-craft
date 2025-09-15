@@ -33,12 +33,18 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    console.log("Using provided price ID...");
+    console.log("Resolving price...");
     let effectivePriceId = priceId;
+    if (!effectivePriceId && plan === "test") {
+      const testPriceId = Deno.env.get("STRIPE_TEST_PRICE_ID");
+      if (!testPriceId) {
+        throw new Error("STRIPE_TEST_PRICE_ID not configured");
+      }
+      effectivePriceId = testPriceId;
+      console.log("Using STRIPE_TEST_PRICE_ID:", effectivePriceId);
+    }
     if (!effectivePriceId) {
-      // Usar el price ID real del producto de 1€ que ya existe en Stripe
-      effectivePriceId = "price_1QnBBrRCKKhBtMJ3xGZ8LQMS"; // Price ID del producto de 1€
-      console.log("Using default test price:", effectivePriceId);
+      throw new Error("Price ID is required");
     }
 
     console.log("Creating checkout session...");

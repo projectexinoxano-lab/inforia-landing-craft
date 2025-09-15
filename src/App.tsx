@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import Success from "./pages/Success";
 import SpecialOffers from "./pages/SpecialOffers";
 import TestProduct from "./pages/TestProduct";
-import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -24,7 +23,6 @@ const App = () => (
           <Route path="/success" element={<Success />} />
           <Route path="/special-offers" element={<SpecialOffers />} />
           <Route path="/test-product" element={<TestProduct />} />
-          <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
