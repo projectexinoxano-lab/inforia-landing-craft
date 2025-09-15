@@ -19,13 +19,8 @@ serve(async (req) => {
     const body = await req.json();
     console.log("Request body:", body);
     
-    const { priceId } = body;
-    
-    if (!priceId) {
-      console.log("No priceId provided. A test product/price will be created.");
-    }
-
-    console.log("Price ID received:", priceId);
+    const { priceId, plan } = body || {};
+    console.log("Parsed params:", { priceId, plan });
 
     // Check for Stripe secret key
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
@@ -38,24 +33,19 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    console.log("Preparing price for checkout...");
+    console.log("Resolving price...");
     let effectivePriceId = priceId;
     if (!effectivePriceId) {
-      console.log("Creating test product and price...");
-      const product = await stripe.products.create({
-        name: "INFORIA Test Plan",
-        description: "Plan de prueba mensual (testing)",
-        metadata: { environment: "test" }
-      });
-      const createdPrice = await stripe.prices.create({
-        product: product.id,
-        unit_amount: 100,
-        currency: "eur",
-        recurring: { interval: "month" },
-        metadata: { environment: "test" }
-      });
-      effectivePriceId = createdPrice.id;
-      console.log("Test price created:", effectivePriceId);
+      if (plan === "test") {
+        const testPriceId = Deno.env.get("STRIPE_TEST_PRICE_ID");
+        if (!testPriceId) {
+          throw new Error("STRIPE_TEST_PRICE_ID not configured");
+        }
+        effectivePriceId = testPriceId;
+        console.log("Using STRIPE_TEST_PRICE_ID:", effectivePriceId);
+      } else {
+        throw new Error("Price ID is required");
+      }
     }
 
     console.log("Creating checkout session...");
