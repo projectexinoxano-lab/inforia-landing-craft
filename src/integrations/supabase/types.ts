@@ -7,20 +7,216 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      [_ in never]: never
+      patients: {
+        Row: {
+          birth_date: string | null
+          created_at: string | null
+          direccion_fisica: string | null
+          email: string | null
+          google_sheet_id: string | null
+          id: string
+          name: string
+          notes: string | null
+          persona_rescate_email: string | null
+          persona_rescate_nombre: string | null
+          persona_rescate_telefono: string | null
+          phone: string | null
+          sexo: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string | null
+          direccion_fisica?: string | null
+          email?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          persona_rescate_email?: string | null
+          persona_rescate_nombre?: string | null
+          persona_rescate_telefono?: string | null
+          phone?: string | null
+          sexo?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string | null
+          direccion_fisica?: string | null
+          email?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          persona_rescate_email?: string | null
+          persona_rescate_nombre?: string | null
+          persona_rescate_telefono?: string | null
+          phone?: string | null
+          sexo?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          billing_address: string | null
+          billing_city: string | null
+          billing_country: string | null
+          billing_email: string | null
+          billing_name: string | null
+          billing_postal_code: string | null
+          clinic_name: string | null
+          collegiate_number: string | null
+          created_at: string | null
+          credits_limit: number | null
+          credits_used: number | null
+          email: string | null
+          full_name: string | null
+          id: string
+          nif_dni: string | null
+          onboarding_completed: boolean | null
+          phone: string | null
+          physical_address: string | null
+          plan_type: string | null
+          professional_license: string | null
+          specialties: string | null
+          subscription_status: string | null
+          tax_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_email?: string | null
+          billing_name?: string | null
+          billing_postal_code?: string | null
+          clinic_name?: string | null
+          collegiate_number?: string | null
+          created_at?: string | null
+          credits_limit?: number | null
+          credits_used?: number | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          nif_dni?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          physical_address?: string | null
+          plan_type?: string | null
+          professional_license?: string | null
+          specialties?: string | null
+          subscription_status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_country?: string | null
+          billing_email?: string | null
+          billing_name?: string | null
+          billing_postal_code?: string | null
+          clinic_name?: string | null
+          collegiate_number?: string | null
+          created_at?: string | null
+          credits_limit?: number | null
+          credits_used?: number | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          nif_dni?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          physical_address?: string | null
+          plan_type?: string | null
+          professional_license?: string | null
+          specialties?: string | null
+          subscription_status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          audio_file_id: string | null
+          audio_transcription: string | null
+          content: string | null
+          created_at: string | null
+          google_drive_file_id: string | null
+          id: string
+          input_type: string
+          patient_id: string
+          report_type: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_file_id?: string | null
+          audio_transcription?: string | null
+          content?: string | null
+          created_at?: string | null
+          google_drive_file_id?: string | null
+          id?: string
+          input_type: string
+          patient_id: string
+          report_type: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_file_id?: string | null
+          audio_transcription?: string | null
+          content?: string | null
+          created_at?: string | null
+          google_drive_file_id?: string | null
+          id?: string
+          input_type?: string
+          patient_id?: string
+          report_type?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_credits_used: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
