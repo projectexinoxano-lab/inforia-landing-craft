@@ -23,7 +23,7 @@ const Dashboard = () => {
         setUser(session?.user ?? null);
         
         if (!session) {
-          navigate('/auth');
+          navigate('/');
         } else {
           // Defer profile fetch to avoid deadlock
           setTimeout(() => {
@@ -39,7 +39,7 @@ const Dashboard = () => {
       setUser(session?.user ?? null);
       
       if (!session) {
-        navigate('/auth');
+        navigate('/');
       } else {
         fetchProfile(session.user.id);
       }
