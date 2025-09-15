@@ -54,6 +54,14 @@ const Header = () => {
               FAQs
             </button>
             <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => window.location.href = '/test-product'}
+              className="mr-2"
+            >
+              Test
+            </Button>
+            <Button 
               variant="outline" 
               size="sm" 
               onClick={() => window.location.href = '/auth'}
