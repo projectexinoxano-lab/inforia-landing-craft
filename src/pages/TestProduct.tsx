@@ -13,7 +13,7 @@ const TestProduct = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {} // Sin priceId usa el producto de 1€ por defecto
+        body: { priceId: 'price_1S7WbA1RyyayvxpU0nEynBbh' }
       });
 
       if (error) throw error;

@@ -87,7 +87,7 @@ const PricingSection = () => {
     setLoadingTest(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan: 'test' }
+        body: { priceId: 'price_1S7WbA1RyyayvxpU0nEynBbh' }
       });
       if (error) throw error;
       if (data?.url) {
