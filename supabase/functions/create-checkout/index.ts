@@ -22,7 +22,7 @@ serve(async (req) => {
     const { priceId } = body;
     
     if (!priceId) {
-      throw new Error("Price ID is required");
+      console.log("No priceId provided. A test product/price will be created.");
     }
 
     console.log("Price ID received:", priceId);
@@ -38,11 +38,31 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
+    console.log("Preparing price for checkout...");
+    let effectivePriceId = priceId;
+    if (!effectivePriceId) {
+      console.log("Creating test product and price...");
+      const product = await stripe.products.create({
+        name: "INFORIA Test Plan",
+        description: "Plan de prueba mensual (testing)",
+        metadata: { environment: "test" }
+      });
+      const createdPrice = await stripe.prices.create({
+        product: product.id,
+        unit_amount: 100,
+        currency: "eur",
+        recurring: { interval: "month" },
+        metadata: { environment: "test" }
+      });
+      effectivePriceId = createdPrice.id;
+      console.log("Test price created:", effectivePriceId);
+    }
+
     console.log("Creating checkout session...");
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          price: priceId,
+          price: effectivePriceId,
           quantity: 1,
         },
       ],

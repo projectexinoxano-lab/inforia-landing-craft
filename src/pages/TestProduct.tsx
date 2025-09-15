@@ -14,7 +14,7 @@ const TestProduct = () => {
     try {
       // Usando un price ID de test de Stripe (precio mínimo para testing)
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: 'price_1OeVtOBKExistingTestProduct' } // Test product price
+        body: {}
       });
 
       if (error) throw error;

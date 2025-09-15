@@ -13,7 +13,7 @@ const SpecialOffers = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: 'price_1RnNe9RCKKhBtMJ3Zhb7GN6N' }
+        body: { }
       });
 
       if (error) throw error;

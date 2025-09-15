@@ -53,22 +53,6 @@ const Header = () => {
             >
               FAQs
             </button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.location.href = '/test-product'}
-              className="mr-2"
-            >
-              Test
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.location.href = '/auth'}
-              className="mr-2"
-            >
-              Iniciar Sesión
-            </Button>
             <Button variant="cta" size="default" onClick={requestDemo}>
               Solicitar Demo
             </Button>
@@ -111,14 +95,6 @@ const Header = () => {
               >
                 FAQs
               </button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => window.location.href = '/auth'}
-                className="self-start"
-              >
-                Iniciar Sesión
-              </Button>
               <Button variant="cta" size="default" onClick={requestDemo}>
                 Solicitar Demo
               </Button>
