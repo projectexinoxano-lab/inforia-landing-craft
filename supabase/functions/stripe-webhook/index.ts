@@ -51,131 +51,36 @@ serve(async (req) => {
 
     console.log("Processing event:", event.type);
 
-    // Only process checkout.session.completed events
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-      console.log("Processing checkout session:", session.id);
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-      // Expand the session to get customer details
-      const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
-        expand: ['customer', 'line_items']
-      });
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error("Missing Supabase environment variables");
+    }
 
-      console.log("Session expanded, customer details:", {
-        email: expandedSession.customer_details?.email,
-        name: expandedSession.customer_details?.name,
-        phone: expandedSession.customer_details?.phone
-      });
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-      // Extract DNI/NIF from custom fields
-      let nifDni = null;
-      if (expandedSession.custom_fields) {
-        const dniField = expandedSession.custom_fields.find(field => field.key === 'dni_nif');
-        if (dniField && dniField.type === 'text') {
-          nifDni = dniField.text?.value;
-        }
-      }
-
-      // Determine plan type based on price ID
-      let planType = 'professional'; // default
-      if (expandedSession.line_items?.data[0]?.price?.id) {
-        const priceId = expandedSession.line_items.data[0].price.id;
-        console.log("Price ID:", priceId);
-        
-        // Map price IDs to plan types (adjust according to your actual price IDs)
-        if (priceId === Deno.env.get("STRIPE_CLINIC_PRICE_ID")) {
-          planType = 'clinic';
-        } else if (priceId === Deno.env.get("STRIPE_PROFESSIONAL_PRICE_ID")) {
-          planType = 'professional';
-        }
-      }
-
-      // Prepare profile data
-      const profileData = {
-        id: crypto.randomUUID(),
-        email: expandedSession.customer_details?.email,
-        full_name: expandedSession.customer_details?.name,
-        phone: expandedSession.customer_details?.phone,
-        billing_name: expandedSession.customer_details?.name,
-        billing_email: expandedSession.customer_details?.email,
-        billing_address: expandedSession.customer_details?.address ? 
-          [expandedSession.customer_details.address.line1, expandedSession.customer_details.address.line2]
-            .filter(Boolean).join(', ') : null,
-        billing_city: expandedSession.customer_details?.address?.city,
-        billing_postal_code: expandedSession.customer_details?.address?.postal_code,
-        billing_country: expandedSession.customer_details?.address?.country,
-        nif_dni: nifDni,
-        plan_type: planType,
-        subscription_status: 'active',
-        onboarding_completed: false,
-        credits_limit: planType === 'clinic' ? 500 : 100,
-        credits_used: 0
-      };
-
-      console.log("Profile data prepared:", profileData);
-
-      // Initialize Supabase client
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-      if (!supabaseUrl || !supabaseServiceKey) {
-        throw new Error("Missing Supabase environment variables");
-      }
-
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-      // Check if profile already exists with this email
-      const { data: existingProfile, error: selectError } = await supabase
-        .from('profiles')
-        .select('id, email')
-        .eq('email', profileData.email)
-        .single();
-
-      if (selectError && selectError.code !== 'PGRST116') {
-        console.error("Error checking existing profile:", selectError);
-        throw new Error(`Database error: ${selectError.message}`);
-      }
-
-      if (existingProfile) {
-        console.log("Profile already exists for email:", profileData.email);
-        // Update existing profile instead of creating new one
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({
-            plan_type: profileData.plan_type,
-            subscription_status: profileData.subscription_status,
-            credits_limit: profileData.credits_limit,
-            billing_name: profileData.billing_name,
-            billing_address: profileData.billing_address,
-            billing_city: profileData.billing_city,
-            billing_postal_code: profileData.billing_postal_code,
-            billing_country: profileData.billing_country,
-            nif_dni: profileData.nif_dni,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingProfile.id);
-
-        if (updateError) {
-          console.error("Error updating profile:", updateError);
-          throw new Error(`Failed to update profile: ${updateError.message}`);
-        }
-
-        console.log("Profile updated successfully for:", profileData.email);
-      } else {
-        // Insert new profile
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert([profileData]);
-
-        if (insertError) {
-          console.error("Error inserting profile:", insertError);
-          throw new Error(`Failed to create profile: ${insertError.message}`);
-        }
-
-        console.log("Profile created successfully for:", profileData.email);
-      }
-    } else {
-      console.log("Ignoring event type:", event.type);
+    // Handle different event types
+    switch (event.type) {
+      case "checkout.session.completed":
+        await handleCheckoutCompleted(event, stripe, supabase);
+        break;
+      
+      case "customer.subscription.updated":
+        await handleSubscriptionUpdated(event, supabase);
+        break;
+      
+      case "invoice.payment_succeeded":
+        await handleInvoicePaymentSucceeded(event, supabase);
+        break;
+      
+      case "invoice.payment_failed":
+        await handleInvoicePaymentFailed(event, supabase);
+        break;
+      
+      default:
+        console.log("Unhandled event type:", event.type);
     }
 
     return new Response(JSON.stringify({ received: true }), {
@@ -197,3 +102,223 @@ serve(async (req) => {
     );
   }
 });
+
+// Handler functions for different event types
+async function handleCheckoutCompleted(event: any, stripe: Stripe, supabase: any) {
+  const session = event.data.object as Stripe.Checkout.Session;
+  console.log("Processing checkout session:", session.id);
+
+  // Expand the session to get customer details
+  const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+    expand: ['customer', 'line_items']
+  });
+
+  console.log("Session expanded, customer details:", {
+    email: expandedSession.customer_details?.email,
+    name: expandedSession.customer_details?.name,
+    phone: expandedSession.customer_details?.phone
+  });
+
+  // Extract DNI/NIF from custom fields
+  let nifDni = null;
+  if (expandedSession.custom_fields) {
+    const dniField = expandedSession.custom_fields.find(field => field.key === 'dni_nif');
+    if (dniField && dniField.type === 'text') {
+      nifDni = dniField.text?.value;
+    }
+  }
+
+  // Determine plan type based on price ID
+  let planType = 'professional'; // default
+  if (expandedSession.line_items?.data[0]?.price?.id) {
+    const priceId = expandedSession.line_items.data[0].price.id;
+    console.log("Price ID:", priceId);
+    
+    // Map price IDs to plan types
+    if (priceId === Deno.env.get("STRIPE_CLINIC_PRICE_ID")) {
+      planType = 'clinic';
+    } else if (priceId === Deno.env.get("STRIPE_PROFESSIONAL_PRICE_ID")) {
+      planType = 'professional';
+    }
+  }
+
+  // Prepare profile data
+  const profileData = {
+    id: crypto.randomUUID(),
+    email: expandedSession.customer_details?.email,
+    full_name: expandedSession.customer_details?.name,
+    phone: expandedSession.customer_details?.phone,
+    billing_name: expandedSession.customer_details?.name,
+    billing_email: expandedSession.customer_details?.email,
+    billing_address: expandedSession.customer_details?.address ? 
+      [expandedSession.customer_details.address.line1, expandedSession.customer_details.address.line2]
+        .filter(Boolean).join(', ') : null,
+    billing_city: expandedSession.customer_details?.address?.city,
+    billing_postal_code: expandedSession.customer_details?.address?.postal_code,
+    billing_country: expandedSession.customer_details?.address?.country,
+    nif_dni: nifDni,
+    plan_type: planType,
+    subscription_status: 'active',
+    onboarding_completed: false,
+    credits_limit: planType === 'clinic' ? 500 : 100,
+    credits_used: 0
+  };
+
+  console.log("Profile data prepared:", profileData);
+
+  // Check if profile already exists with this email
+  const { data: existingProfile, error: selectError } = await supabase
+    .from('profiles')
+    .select('id, email')
+    .eq('email', profileData.email)
+    .single();
+
+  if (selectError && selectError.code !== 'PGRST116') {
+    console.error("Error checking existing profile:", selectError);
+    throw new Error(`Database error: ${selectError.message}`);
+  }
+
+  if (existingProfile) {
+    console.log("Profile already exists for email:", profileData.email);
+    // Update existing profile
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        plan_type: profileData.plan_type,
+        subscription_status: profileData.subscription_status,
+        credits_limit: profileData.credits_limit,
+        billing_name: profileData.billing_name,
+        billing_address: profileData.billing_address,
+        billing_city: profileData.billing_city,
+        billing_postal_code: profileData.billing_postal_code,
+        billing_country: profileData.billing_country,
+        nif_dni: profileData.nif_dni,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', existingProfile.id);
+
+    if (updateError) {
+      console.error("Error updating profile:", updateError);
+      throw new Error(`Failed to update profile: ${updateError.message}`);
+    }
+
+    console.log("Profile updated successfully for:", profileData.email);
+  } else {
+    // Insert new profile
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert([profileData]);
+
+    if (insertError) {
+      console.error("Error inserting profile:", insertError);
+      throw new Error(`Failed to create profile: ${insertError.message}`);
+    }
+
+    console.log("Profile created successfully for:", profileData.email);
+  }
+}
+
+async function handleSubscriptionUpdated(event: any, supabase: any) {
+  const subscription = event.data.object;
+  console.log("Processing subscription update:", subscription.id);
+
+  // Find profile by customer email
+  const customer = subscription.customer;
+  let customerEmail = null;
+
+  // If we have customer object with email
+  if (typeof customer === 'object' && customer.email) {
+    customerEmail = customer.email;
+  }
+
+  if (!customerEmail) {
+    console.log("No customer email found for subscription:", subscription.id);
+    return;
+  }
+
+  // Update subscription status in profile
+  const subscriptionStatus = subscription.status === 'active' ? 'active' : 
+                           subscription.status === 'canceled' ? 'canceled' : 
+                           subscription.status === 'past_due' ? 'past_due' : 'inactive';
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      subscription_status: subscriptionStatus,
+      updated_at: new Date().toISOString()
+    })
+    .eq('email', customerEmail);
+
+  if (error) {
+    console.error("Error updating subscription status:", error);
+    throw new Error(`Failed to update subscription: ${error.message}`);
+  }
+
+  console.log("Subscription status updated for:", customerEmail, "to:", subscriptionStatus);
+}
+
+async function handleInvoicePaymentSucceeded(event: any, supabase: any) {
+  const invoice = event.data.object;
+  console.log("Processing successful payment for invoice:", invoice.id);
+
+  // Update subscription status to active
+  const customer = invoice.customer;
+  let customerEmail = null;
+
+  if (typeof customer === 'object' && customer.email) {
+    customerEmail = customer.email;
+  }
+
+  if (!customerEmail) {
+    console.log("No customer email found for invoice:", invoice.id);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      subscription_status: 'active',
+      updated_at: new Date().toISOString()
+    })
+    .eq('email', customerEmail);
+
+  if (error) {
+    console.error("Error updating payment status:", error);
+    throw new Error(`Failed to update payment status: ${error.message}`);
+  }
+
+  console.log("Payment success updated for:", customerEmail);
+}
+
+async function handleInvoicePaymentFailed(event: any, supabase: any) {
+  const invoice = event.data.object;
+  console.log("Processing failed payment for invoice:", invoice.id);
+
+  // Update subscription status to past_due
+  const customer = invoice.customer;
+  let customerEmail = null;
+
+  if (typeof customer === 'object' && customer.email) {
+    customerEmail = customer.email;
+  }
+
+  if (!customerEmail) {
+    console.log("No customer email found for invoice:", invoice.id);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      subscription_status: 'past_due',
+      updated_at: new Date().toISOString()
+    })
+    .eq('email', customerEmail);
+
+  if (error) {
+    console.error("Error updating payment failure:", error);
+    throw new Error(`Failed to update payment failure: ${error.message}`);
+  }
+
+  console.log("Payment failure updated for:", customerEmail);
+}
